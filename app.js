@@ -41,13 +41,30 @@ var financecontroller = (function(){
             exp : 0
         }
       };
+      return {
+        additem: function(type, desc, val){
+            var item, id=1;
+            if(data.allitems[type].lenght===0) id=1;
+            else{
+              id = data.allitems[type][data.allitems[type].length-1].id + 1;
+            }
+            
+            if(type==='ínc'){
+                item=new income(id, desc, val);
+            }else{
+                item=new expense(id, desc, val);
+            }
+            data.allitems[type].push(item);
+        }
+      }
 })();
 // програмын холбогч контроллер
 var appcontroller = (function(){
     var ctradditem = function(){
         //  1. оруулах өгөгдлийг дэлгэцээс олж авна
-        console.log(uicontroller.geninput());
+        var input = uicontroller.geninput();
         //  2. олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална
+        financecontroller.additem(input.type, input.description, input.value);
         //  3. олж авсан өгөдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
         //  4. төсвийг тоцоолно
         //  5. эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана. 
