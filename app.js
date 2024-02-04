@@ -7,7 +7,7 @@ var uicontroller = (function(){
         addbtn: '.add__btn'
     };
     return {
-        geninput: function(){
+        getinput: function(){
          return{  
              type: document.querySelector(domstrings.inputtype).value,
              description: document.querySelector(domstrings.inputdescription).value,
@@ -16,56 +16,78 @@ var uicontroller = (function(){
         },
         getdomstrings: function(){
            return domstrings;
+        },
+        addlistitem: function(item, type){
+            // Орлого зарлагын элементийг агуулсан HTML-ийг бэлтгэнэ
+            var html, list;
+            if (type === "inc"){
+                list=".income__list";
+                html='<div class="item clearfix" id="income-%ID%"><div class="item__description">$DESCRIPTION$</div><div class="right clearfix"><div class="item__value">$VALUE$</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+            }else{
+                list='.expenses__list';
+                html='<div class="item clearfix" id="expense-%ID%"><div class="item__description">$DESCRIPTION$</div> <div class="right clearfix"> <div class="item__value">$VALUE$</div><div class="item__percentage">21%</div> <div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div> </div>'
+            }
+            // Тэр HTML дотроо орлого зарлагын утгыг replace ашиглаж өөрчилнө
+            html=html.replace('%ID%', item.id);
+            html= html.replace('$DESCRIPTION$', item.description);
+            html= html.replace('$VALUE$', item.value);
+            // Бэлтгэсэн  HTML- ээ  DOM руу хийж өгнө
+            document.querySelector(list).insertAdjacentHTML('beforeend', html);
         }
     };
 })();
 // санхүүтэй холбогч контроллер
 var financecontroller = (function(){
     var income = function(id, description, value){
-        this.id=id;
-        this.description=description;
-        this.value=value;
+        this.id = id;
+        this.description = description;
+        this.value = value;
       };
       var expense = function(id, descrioption, value){
-        this.id=id;
-        this.descrioption=descrioption;
-        this.value=value;
+        this.id = id;
+        this.descrioption = descrioption;
+        this.value = value;
       };
       var data = {
-        allitems: {
-            inc : [],
-            exp : []
+        items: {
+            inc: [],
+            exp: []
         },
         totals: {
-            inc : 0,
-            exp : 0
+            inc: 0,
+            exp: 0
         }
       };
       return {
         additem: function(type, desc, val){
-            var item, id=1;
-            if(data.allitems[type].lenght===0) id=1;
+            var item, id;
+            if(data.items[type].length===0) id=1;
             else{
-              id = data.allitems[type][data.allitems[type].length-1].id + 1;
+              id = data.items[type][data.items[type].length-1].id+1;
             }
             
-            if(type==='ínc'){
+            if(type==='inc'){
                 item=new income(id, desc, val);
             }else{
                 item=new expense(id, desc, val);
             }
-            data.allitems[type].push(item);
-        }
-      }
+            data.items[type].push(item);
+            return item;
+        },
+        seeData: function() {
+            return data;
+          }
+      };
 })();
 // програмын холбогч контроллер
-var appcontroller = (function(){
+var appcontroller = (function(uicontroller, financecontroller){
     var ctradditem = function(){
         //  1. оруулах өгөгдлийг дэлгэцээс олж авна
-        var input = uicontroller.geninput();
+        var input = uicontroller.getinput();
         //  2. олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална
-        financecontroller.additem(input.type, input.description, input.value);
+       var item = financecontroller.additem(input.type, input.description, input.value);
         //  3. олж авсан өгөдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
+        uicontroller.addlistitem(item, input.type);
         //  4. төсвийг тоцоолно
         //  5. эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана. 
     };
@@ -77,7 +99,7 @@ var appcontroller = (function(){
         document.addEventListener('keypress', function(event){
             if(event.keyCode===13 || event.which === 13) {
                 ctradditem();
-            }
+            };
         });
     } ;
 
