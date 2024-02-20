@@ -4,7 +4,9 @@ var uicontroller = (function(){
         inputtype: '.add__type',
         inputdescription: '.add__description' ,
         inputvalue:'.add__value',
-        addbtn: '.add__btn'
+        addbtn: '.add__btn',
+        inclist: ".income__list",
+        explist: '.expenses__list'
     };
     return {
         getinput: function(){
@@ -17,14 +19,22 @@ var uicontroller = (function(){
         getdomstrings: function(){
            return domstrings;
         },
+        ClearFields:function(){
+            var fields = document.querySelectorAll(domstrings.inputdescription + ',' + domstrings.inputvalue);
+            var fieldarr=Array.prototype.slice.call(fields);
+           fieldarr.forEach(function(el){
+            el.value = " ";
+           });
+           fieldarr[0].focus();
+        },
         addlistitem: function(item, type){
             // Орлого зарлагын элементийг агуулсан HTML-ийг бэлтгэнэ
             var html, list;
             if (type === "inc"){
-                list=".income__list";
+                list=domstrings.inclist;
                 html='<div class="item clearfix" id="income-%ID%"><div class="item__description">$DESCRIPTION$</div><div class="right clearfix"><div class="item__value">$VALUE$</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
             }else{
-                list='.expenses__list';
+                list=domstrings.explist;
                 html='<div class="item clearfix" id="expense-%ID%"><div class="item__description">$DESCRIPTION$</div> <div class="right clearfix"> <div class="item__value">$VALUE$</div><div class="item__percentage">21%</div> <div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div> </div>'
             }
             // Тэр HTML дотроо орлого зарлагын утгыг replace ашиглаж өөрчилнө
@@ -43,9 +53,9 @@ var financecontroller = (function(){
         this.description = description;
         this.value = value;
       };
-      var expense = function(id, descrioption, value){
+      var expense = function(id, description, value){
         this.id = id;
-        this.descrioption = descrioption;
+        this.description = description;
         this.value = value;
       };
       var data = {
@@ -88,6 +98,7 @@ var appcontroller = (function(uicontroller, financecontroller){
        var item = financecontroller.additem(input.type, input.description, input.value);
         //  3. олж авсан өгөдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
         uicontroller.addlistitem(item, input.type);
+        uicontroller.ClearFields();
         //  4. төсвийг тоцоолно
         //  5. эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана. 
     };
