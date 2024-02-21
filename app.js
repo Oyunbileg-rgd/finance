@@ -13,7 +13,7 @@ var uicontroller = (function(){
          return{  
              type: document.querySelector(domstrings.inputtype).value,
              description: document.querySelector(domstrings.inputdescription).value,
-             value: document.querySelector(domstrings.inputvalue).value
+             value: parseInt(document.querySelector(domstrings.inputvalue).value)
             };
         },
         getdomstrings: function(){
@@ -22,8 +22,8 @@ var uicontroller = (function(){
         ClearFields:function(){
             var fields = document.querySelectorAll(domstrings.inputdescription + ',' + domstrings.inputvalue);
             var fieldarr=Array.prototype.slice.call(fields);
-           fieldarr.forEach(function(el){
-            el.value = " ";
+           fieldarr.forEach(function(el,index, array){
+            el.value = "";
            });
            fieldarr[0].focus();
         },
@@ -58,6 +58,15 @@ var financecontroller = (function(){
         this.description = description;
         this.value = value;
       };
+
+     var CalculateTotal=function(type){
+        var sum=0
+        data.items[type].forEach(function(el){
+            sum=sum+el.value;
+        });
+        data.totals[type]=sum;
+     };
+    
       var data = {
         items: {
             inc: [],
@@ -66,9 +75,25 @@ var financecontroller = (function(){
         totals: {
             inc: 0,
             exp: 0
-        }
+        },
+        tusuv:0,
+        huvi:0
       };
       return {
+        Tusuvtootsooloh:function(){
+            CalculateTotal('inc');
+            CalculateTotal('exp');
+            data.tusuv = data.totals.inc-data.totals.exp;
+            data.huvi = Math.round((data.totals.exp/data.totals.inc)*100);
+        },
+        tusuviigavah: function(){
+            return{
+                tusuv: data.tusuv,
+                huvi: data.huvi,
+                totalinc: data.totals.inc,
+                totalexp:data.totals.exp
+            }
+        },
         additem: function(type, desc, val){
             var item, id;
             if(data.items[type].length===0) id=1;
@@ -93,14 +118,20 @@ var financecontroller = (function(){
 var appcontroller = (function(uicontroller, financecontroller){
     var ctradditem = function(){
         //  1. оруулах өгөгдлийг дэлгэцээс олж авна
-        var input = uicontroller.getinput();
-        //  2. олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална
-       var item = financecontroller.additem(input.type, input.description, input.value);
-        //  3. олж авсан өгөдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
-        uicontroller.addlistitem(item, input.type);
-        uicontroller.ClearFields();
-        //  4. төсвийг тоцоолно
-        //  5. эцсийн үлдэгдэл, тооцоог дэлгэцэнд гаргана. 
+        var input = uicontroller.getinput();    
+        if(input.description !== "" && input.value !== ""){
+            //  2. олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж тэнд хадгална
+            var item = financecontroller.additem(input.type, input.description, input.value);
+            //  3. олж авсан өгөдлүүдээ вэб дээрээ тохирох хэсэгт нь гаргана
+            uicontroller.addlistitem(item, input.type);
+            uicontroller.ClearFields();
+            //  4. төсвийг тоцоолно
+            financecontroller.Tusuvtootsooloh();
+            //  5. эцсийн үлдэгдэл, 
+            var tusuv=financecontroller.tusuviigavah();
+            // 6. тооцоог дэлгэцэнд гаргана. 
+            console.log
+        }    
     };
     var setupeventlistner = function(){
         var dom = uicontroller.getdomstrings();
