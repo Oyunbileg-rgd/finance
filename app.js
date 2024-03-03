@@ -45,6 +45,13 @@ var uicontroller = (function(){
             var unuudur = new Date();
             document.querySelector(domstrings.dateLabel).textContent= unuudur.getFullYear() + ' оны ' + unuudur.getMonth() + ' сарын ';
         },
+        changeType: function(){
+            var fields = document.querySelectorAll(domstrings.inputtype + ',' + domstrings.inputdescription + ',' + domstrings.inputvalue);
+            nodelistforeach(fields, function(el){
+                el.classList.toggle('red-focus');
+            });
+            document.querySelector(domstrings.addbtn).classList.toggle('red');
+        },
         getinput: function(){
          return{  
              type: document.querySelector(domstrings.inputtype).value,
@@ -242,6 +249,7 @@ var appcontroller = (function(uicontroller, financecontroller){
                 ctradditem();
             };
         });
+        document.querySelector(dom.inputtype).addEventListener('change',uicontroller.changeType);
         document.querySelector(dom.containetrDiv).addEventListener('click', function(event){
             var id=event.target.parentNode.parentNode.parentNode.parentNode.id;
             if(id){
